@@ -4,22 +4,27 @@ import (
 	"github.com/google/go-github/github"
 	"context"
 	"strconv"
-	"log"
 	"sort"
 	"github.com/pkg/errors"
+	"code.cloudfoundry.org/lager"
+	"fmt"
 )
 
 type Version float64
+
+func (v Version) String() string {
+	f := float64(v)
+	return strconv.FormatFloat(f, 'f', 1, 64)
+}
 
 type Versions interface {
 	Latest() Version
 	LatestN(head int) []Version
 }
 
-
 type PcfVersion struct {
 	Client *github.Client
-	Logger *log.Logger
+	Logger lager.Logger
 }
 
 func (p PcfVersion) Latest() Version {
@@ -27,7 +32,7 @@ func (p PcfVersion) Latest() Version {
 	if err != nil {
 		panic(err)
 	}
-	return Version(versions[len(versions) - 1])
+	return Version(versions[len(versions)-1])
 }
 
 func (p PcfVersion) LatestN(head int) ([]Version, error) {
@@ -41,16 +46,15 @@ func (p PcfVersion) LatestN(head int) ([]Version, error) {
 	for _, branch := range branches {
 		branchVersion, err := strconv.ParseFloat(*branch.Name, 64)
 		if err != nil {
-			p.Logger.Printf("branch name (%v) is not a valid. Skipping", *branch.Name)
+			p.Logger.Info(fmt.Sprintf("branch name (%v) is not a valid. Skipping", *branch.Name))
 			continue
 		}
 		versions = append(versions, Version(branchVersion))
 	}
 	sort.Sort(versionSlice(versions))
 
-	return versions[len(versions) - head:], nil
+	return versions[len(versions)-head:], nil
 }
-
 
 type versionSlice []Version
 

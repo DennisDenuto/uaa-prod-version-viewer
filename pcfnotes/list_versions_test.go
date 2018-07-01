@@ -7,7 +7,7 @@ import (
 	"github.com/google/go-github/github"
 	. "github.com/onsi/gomega"
 	"fmt"
-	"log"
+	"code.cloudfoundry.org/lager/lagertest"
 )
 
 type GithubBranch struct {
@@ -34,7 +34,7 @@ var _ = Describe("ListVersions", func() {
 
 		pcfVersion = pcfnotes.PcfVersion{
 			Client: githubClient,
-			Logger: log.New(GinkgoWriter, "ginkgo run: ", log.LUTC),
+			Logger: lagertest.NewTestLogger("list-versions"),
 		}
 	})
 

@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"encoding/json"
 	"strings"
+	"fmt"
 )
 
 type ComponentDetails struct {
@@ -21,11 +22,12 @@ type PcfNotesComponentDetails struct {
 }
 
 func (p PcfNotesComponentDetails) ByName(releaseName string, version Version) (bool, ComponentDetails) {
-	pcfPipelineURI := "/api/v1/teams/main/pipelines/build::2.1/resources"
+	pcfPipelineURI := fmt.Sprintf("/api/v1/teams/main/pipelines/build::%s/resources", version.String())
 	pcfPipelineURL, err := p.BaseURL.Parse(pcfPipelineURI)
 	if err != nil {
 		panic(err)
 	}
+	println(pcfPipelineURL.String())
 	resp, err := http.Get(pcfPipelineURL.String())
 	if err != nil {
 		panic(err)

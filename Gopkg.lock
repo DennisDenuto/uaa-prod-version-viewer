@@ -2,6 +2,16 @@
 
 
 [[projects]]
+  name = "code.cloudfoundry.org/lager"
+  packages = [
+    ".",
+    "lagerctx",
+    "lagertest"
+  ]
+  revision = "b60e04e119450552243196105bae0d42179ee0ca"
+  version = "v1.1.0"
+
+[[projects]]
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
@@ -49,6 +59,7 @@
   packages = [
     ".",
     "format",
+    "gbytes",
     "ghttp",
     "internal/assertion",
     "internal/asyncassertion",
@@ -119,6 +130,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b28d8d996c41653ceea7e91f8a4d426921acc71d6af98f2c9c6c1196c6da6a72"
+  inputs-digest = "588e954042d08af57ebf3e6f90d99c83031568a116e341b57701be3c6343eba6"
   solver-name = "gps-cdcl"
   solver-version = 1
