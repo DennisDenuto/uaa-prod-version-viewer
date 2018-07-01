@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"net/url"
+	"github.com/DennisDenuto/uaa-prod-version-viewer/uaa_release"
 )
 
 func main() {
@@ -32,16 +33,21 @@ func main() {
 	details := pcfnotes.PcfNotesComponentDetails{
 		BaseURL: relengURL,
 	}
+
+	uaaReleaseRepo := uaa_release.UAAReleaseRepo{
+		Client: client,
+	}
+
 	for _, version := range versions {
 
-		if found, componentDetails := details.ByName("uaa", version); found {
-			logger.Debug(fmt.Sprintf("hello? %v", componentDetails))
+		if found, pcfComponentDetails := details.ByName("uaa", version); found {
+			logger.Debug(fmt.Sprintf("%v", pcfComponentDetails))
+			uaaVersion := uaaReleaseRepo.GetUAAVersion(pcfComponentDetails.Version)
+			println(uaaVersion)
 		}
 
 	}
 
 
-	//client.Repositories.ListBranches()
-	//fileContent, directoryContent, resp, err := client.Repositories.GetContents(context.Background(), "pivotal-cf", "pcf-release-notes", "runtime-rn.html.md.erb", &github.RepositoryContentGetOptions{Ref: "2.2"})
 
 }

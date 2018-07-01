@@ -27,7 +27,6 @@ func (p PcfNotesComponentDetails) ByName(releaseName string, version Version) (b
 	if err != nil {
 		panic(err)
 	}
-	println(pcfPipelineURL.String())
 	resp, err := http.Get(pcfPipelineURL.String())
 	if err != nil {
 		panic(err)
