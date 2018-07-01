@@ -35,6 +35,29 @@ func (u UAAReleaseRepo) GetUAAVersion(uaaReleaseBranch string) string {
 	return gradleProperties["version"]
 }
 
+func (u UAAReleaseRepo) GetUAAKeyRotatorVersion(uaaReleaseBranch string) string {
+	fileContent, _, _, err := u.Client.Repositories.GetContents(context.Background(), "cloudfoundry", "uaa-release", "src/github.com/cloudfoundry/uaa-key-rotator", &github.RepositoryContentGetOptions{Ref: uaaReleaseBranch})
+	if fileContent == nil {
+		return "n/a"
+	}
+
+	if err != nil {
+		panic(err)
+	}
+	uaaKeyRotatorSHA := fileContent.GetSHA()
+	tags, _, err := u.Client.Repositories.ListTags(context.Background(), "cloudfoundry", "uaa-key-rotator", &github.ListOptions{PerPage: 1000})
+	if err != nil {
+		panic(err)
+	}
+
+	for _, tag := range tags {
+		if tag.Commit.GetSHA() == uaaKeyRotatorSHA {
+			return tag.GetName()
+		}
+	}
+	return uaaKeyRotatorSHA
+}
+
 type AppConfigProperties map[string]string
 
 func ReadProperties(propertiesContent string) (AppConfigProperties, error) {
