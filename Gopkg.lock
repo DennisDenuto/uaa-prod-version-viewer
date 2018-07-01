@@ -30,6 +30,12 @@
   revision = "53e6ce116135b80d037921a7fdd5138cf32d7a8a"
 
 [[projects]]
+  name = "github.com/johnmccabe/bitbar"
+  packages = ["."]
+  revision = "9983f096ee549549afe41a2907f7999b898a2188"
+  version = "0.2.0"
+
+[[projects]]
   name = "github.com/onsi/ginkgo"
   packages = [
     ".",
@@ -130,6 +136,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "588e954042d08af57ebf3e6f90d99c83031568a116e341b57701be3c6343eba6"
+  inputs-digest = "82b786916d4da3abb5c9c3ae54f16b7b0cfd0063114f9f4d2694c5a7a4af7490"
   solver-name = "gps-cdcl"
   solver-version = 1

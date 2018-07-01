@@ -9,8 +9,9 @@ import (
 )
 
 type ComponentDetails struct {
-	Name    string
-	Version string
+	Name       string
+	Version    string
+	PCFVersion string
 }
 
 type GetComponentDetails interface {
@@ -19,6 +20,17 @@ type GetComponentDetails interface {
 
 type PcfNotesComponentDetails struct {
 	BaseURL *url.URL
+}
+
+func MustNewPcfNotesComponentDetails(pcfURL string) PcfNotesComponentDetails {
+	relengURL, err := url.Parse(pcfURL)
+	if err != nil {
+		panic(err)
+	}
+
+	return PcfNotesComponentDetails{
+		BaseURL: relengURL,
+	}
 }
 
 func (p PcfNotesComponentDetails) ByName(releaseName string, version Version) (bool, ComponentDetails) {
@@ -46,8 +58,9 @@ func (p PcfNotesComponentDetails) ByName(releaseName string, version Version) (b
 			versionStartIndex := strings.LastIndex(detail.Name, releaseWithDash) + len(releaseWithDash)
 			versionEndIndex := strings.Index(detail.Name[versionStartIndex:], "-release")
 			return true, ComponentDetails{
-				Name:    detail.Name[:versionStartIndex-1],
-				Version: detail.Name[versionStartIndex:(versionStartIndex + versionEndIndex)],
+				Name:       detail.Name[:versionStartIndex-1],
+				Version:    detail.Name[versionStartIndex:(versionStartIndex + versionEndIndex)],
+				PCFVersion: version.String(),
 			}
 		}
 	}

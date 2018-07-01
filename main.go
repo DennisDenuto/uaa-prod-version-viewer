@@ -3,51 +3,86 @@ package main
 import (
 	"github.com/google/go-github/github"
 	"github.com/DennisDenuto/uaa-prod-version-viewer/pcfnotes"
-	"code.cloudfoundry.org/lager"
 	"fmt"
 	"os"
-	"net/url"
 	"github.com/DennisDenuto/uaa-prod-version-viewer/uaa_release"
+	"golang.org/x/oauth2"
+	"context"
+	"github.com/DennisDenuto/uaa-prod-version-viewer/printer"
+	"flag"
+	"code.cloudfoundry.org/lager"
 )
 
 func main() {
-	client := github.NewClient(nil)
-	logger := lager.NewLogger("prod-version-viewer")
-	logger.RegisterSink(lager.NewPrettySink(os.Stdout, lager.DEBUG))
+	var githubPAT string
+	var numPCFVersions int
 
-	version := pcfnotes.PcfVersion{
-		Client: client,
+	flag.StringVar(&githubPAT, "token", "", "github personal access token")
+	flag.IntVar(&numPCFVersions, "num", 3, "number of pcf versions to generate")
+	flag.Parse()
+
+	pcfBitbarPrinter := printer.BitBarPrinter{
+		Writer:           os.Stdout,
+		StatusIconBase64: `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`,
+	}
+
+	err := pcfBitbarPrinter.Print(getLineItems(githubPAT, numPCFVersions))
+	if err != nil {
+		panic(err)
+	}
+}
+
+func getLineItems(githubPAT string, NPcfVersions int) []printer.LineItem {
+	logFile, err := os.OpenFile("/tmp/pcf-viewer.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+
+	logger := lager.NewLogger("pcf-version-viewer")
+	logger.RegisterSink(lager.NewPrettySink(logFile, lager.DEBUG))
+
+	githubClient := github.NewClient(oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(&oauth2.Token{
+		AccessToken: githubPAT,
+	})))
+
+	pcfVersionClient := pcfnotes.PcfVersion{
+		Client: githubClient,
 		Logger: logger,
 	}
+	uaaReleaseRepoClient := uaa_release.UAAReleaseRepo{
+		Client: githubClient,
+	}
 
-	versions, err := version.LatestN(3)
+	pcfNVersions, err := pcfVersionClient.LatestN(NPcfVersions)
 	if err != nil {
 		panic(err)
 	}
 
-	relengURL, err := url.Parse("https://releng.ci.cf-app.com/")
-	if err != nil {
-		panic(err)
-	}
+	pcfNotesComponentDetailsClient := pcfnotes.MustNewPcfNotesComponentDetails("https://releng.ci.cf-app.com/")
+	uaaBoshReleasePCFComponentName := "uaa"
 
-	details := pcfnotes.PcfNotesComponentDetails{
-		BaseURL: relengURL,
-	}
-
-	uaaReleaseRepo := uaa_release.UAAReleaseRepo{
-		Client: client,
-	}
-
-	for _, version := range versions {
-
-		if found, pcfComponentDetails := details.ByName("uaa", version); found {
+	var lineItems = make([]printer.LineItem, 0)
+	for _, pcfVersion := range pcfNVersions {
+		if found, pcfComponentDetails := pcfNotesComponentDetailsClient.ByName(uaaBoshReleasePCFComponentName, pcfVersion); found {
 			logger.Debug(fmt.Sprintf("%v", pcfComponentDetails))
-			uaaVersion := uaaReleaseRepo.GetUAAVersion(pcfComponentDetails.Version)
-			println(uaaVersion)
+			uaaVersion := uaaReleaseRepoClient.GetUAAVersion(pcfComponentDetails.Version)
+
+			lineItems = append(lineItems, toLineItem(pcfVersion, pcfComponentDetails, uaaVersion))
 		}
 
 	}
+	return lineItems
+}
 
-
-
+func toLineItem(version pcfnotes.Version, pcfComponentDetails pcfnotes.ComponentDetails, uaaGitVersion string) printer.LineItem {
+	return printer.LineItem{
+		BoshRelease: printer.BoshRelease{
+			Name:    pcfComponentDetails.Name + "-release",
+			Version: pcfComponentDetails.Version,
+			Packages: []printer.BoshPackage{
+				{Name: "uaa", Version: uaaGitVersion},
+			},
+		},
+		PcfVersion: version,
+	}
 }
