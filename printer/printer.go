@@ -63,7 +63,7 @@ func (b BitBarPrinter) printStatus() error {
 func (b BitBarPrinter) printPCFLine(bitbarPlugin *bitbar.Plugin, menu *bitbar.SubMenu, item LineItem) {
 	s := bitbar.Style{
 		Font:  "UbuntuMono-Bold",
-		Color: "white",
+		Color: "black",
 		Size:  12,
 	}
 	menu.HR()
