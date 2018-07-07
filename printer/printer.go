@@ -5,6 +5,7 @@ import (
 	"io"
 	"fmt"
 	"github.com/johnmccabe/bitbar"
+	"github.com/pkg/errors"
 )
 
 type BoshPackage struct {
@@ -55,7 +56,7 @@ func (bb BitBarPrinter) Print(lineItems []LineItem) error {
 
 	_, err := bb.Writer.Write([]byte(b.Render()))
 	if err != nil {
-		panic(err)
+		return errors.Wrap(err, "Unable to write bitbar to writer")
 	}
 
 	return nil
