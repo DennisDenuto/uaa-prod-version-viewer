@@ -38,15 +38,20 @@ type Printer interface {
 type BitBarPrinter struct {
 	Writer           io.Writer
 	StatusIconBase64 string
+	ColorText        string
 }
 
 func (bb BitBarPrinter) Print(lineItems []LineItem) error {
+	bitbarStyle.Color = bb.ColorText
+
 	b := &bitbar.Plugin{}
 	b.StatusLine("").Image(bb.StatusIconBase64)
 	menu := b.NewSubMenu()
 	for _, item := range lineItems {
 		bb.printPCFLine(b, menu, item)
 	}
+
+	bb.printCSVExportOption(b, menu)
 
 	_, err := bb.Writer.Write([]byte(b.Render()))
 	if err != nil {
@@ -60,19 +65,32 @@ func (b BitBarPrinter) printStatus() error {
 	return err
 }
 
+var bitbarStyle = bitbar.Style{
+	Font:  "UbuntuMono-Bold",
+	Color: "black",
+	Size:  12,
+}
+
 func (b BitBarPrinter) printPCFLine(bitbarPlugin *bitbar.Plugin, menu *bitbar.SubMenu, item LineItem) {
-	s := bitbar.Style{
-		Font:  "UbuntuMono-Bold",
-		Color: "black",
-		Size:  12,
-	}
 	menu.HR()
-	menu.Line(fmt.Sprintf("PCF %s", item.PcfVersion.String())).Style(s)
+	menu.Line(fmt.Sprintf("PCF %s", item.PcfVersion.String())).Style(bitbarStyle)
 	menu.HR()
-	menu.Line(fmt.Sprintf("%s: %s", item.BoshRelease.Name, item.BoshRelease.Version)).Style(s).Href(item.BoshRelease.GithubURL())
+	menu.Line(fmt.Sprintf("%s: %s", item.BoshRelease.Name, item.BoshRelease.Version)).Style(bitbarStyle).Href(item.BoshRelease.GithubURL())
 
 	for _, boshPackage := range item.BoshRelease.Packages {
 		submenu := bitbarPlugin.SubMenu.NewSubMenu()
 		submenu.Line(fmt.Sprintf("%s: version %s", boshPackage.Name, boshPackage.Version)).Href(boshPackage.GithubURL())
 	}
+}
+
+func (printer BitBarPrinter) printCSVExportOption(bitbarPlugin *bitbar.Plugin, menu *bitbar.SubMenu) {
+	menu.HR()
+	menu.Line("Reports").Style(bitbarStyle)
+
+	cmd := bitbar.Cmd{
+		Bash:   "uaa-prod-version-viewer",
+		Params: []string{"csv"},
+	}
+
+	bitbarPlugin.SubMenu.NewSubMenu().Line("CSV").Command(cmd)
 }

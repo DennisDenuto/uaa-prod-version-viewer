@@ -30,6 +30,7 @@ import (
 
 
 var githubPAT string
+var colorText string
 var numPCFVersions int
 
 // bitbarCmd represents the bitbar command
@@ -60,6 +61,7 @@ var bitbarCmd = &cobra.Command{
 
 func init() {
 	bitbarCmd.Flags().StringVarP(&githubPAT, "token", "t", "", "Github PAT")
+	bitbarCmd.Flags().StringVarP(&colorText, "color", "c", "black", "bitbar text color")
 	bitbarCmd.Flags().IntVarP(&numPCFVersions, "num", "n", 3, "number of pcf versions to fetch")
 
 	rootCmd.AddCommand(bitbarCmd)

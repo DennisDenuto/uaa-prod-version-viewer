@@ -49,6 +49,7 @@ var _ = Describe("Printer", func() {
 			bitbarPrinter = printer.BitBarPrinter{
 				Writer:           writer,
 				StatusIconBase64: "image_base64",
+				ColorText:        "black",
 			}
 		})
 
@@ -68,6 +69,9 @@ var _ = Describe("Printer", func() {
 			Expect(writer).Should(Say(`---`))
 			Expect(writer).Should(Say(`uaa-release: uaa-version2 \| color=black font=UbuntuMono-Bold size=12 href=https://github.com/cloudfoundry/uaa-release/tree/uaa-version2`))
 			Expect(writer).Should(Say(`-- uaa: version standalone-version2 \| href=https://github.com/cloudfoundry/uaa/tree/standalone-version2`))
+			Expect(writer).Should(Say(`---`))
+			Expect(writer).Should(Say(`Reports \| color=black font=UbuntuMono-Bold size=12`))
+			Expect(writer).Should(Say(`-- CSV | bash="uaa-prod-version-viewer" param1=csv`))
 		})
 	})
 })
