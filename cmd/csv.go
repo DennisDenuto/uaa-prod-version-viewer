@@ -7,6 +7,8 @@ import (
 	"os"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/cznic/fileutil"
+	"encoding/json"
+	"io/ioutil"
 )
 
 var csvCmd = &cobra.Command{
@@ -30,7 +32,7 @@ var csvCmd = &cobra.Command{
 			Writer: csvFile,
 		}
 
-		err = csvPrinter.Print(getLineItems(logger, githubPAT, numPCFVersions))
+		err = csvPrinter.Print(getLineItemsFromFile(logger))
 		if err != nil {
 			logger.Fatal("Unable to print line items to csv file", err)
 		}
@@ -41,6 +43,21 @@ var csvCmd = &cobra.Command{
 		}
 
 	},
+}
+
+func getLineItemsFromFile(logger lager.Logger) []printer.LineItem {
+	lineItemsJson, err := ioutil.ReadFile(LineItemsLocalCacheLocation)
+	if err != nil {
+		logger.Fatal("Unable to unmarshal line items from json file", err)
+	}
+
+	var lineItems []printer.LineItem
+	err = json.Unmarshal(lineItemsJson, &lineItems)
+	if err != nil {
+		logger.Fatal("Unable to unmarshal line items", err)
+	}
+
+	return lineItems
 }
 
 func init() {
