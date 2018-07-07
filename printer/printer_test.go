@@ -19,7 +19,7 @@ var _ = Describe("Printer", func() {
 		BeforeEach(func() {
 			writer = NewBuffer()
 			uaaReleaseLineItem1 = printer.LineItem{
-				PcfVersion: pcfnotes.Version(2.2),
+				PcfVersion: pcfnotes.Version{2, 2},
 				BoshRelease: printer.BoshRelease{
 					Name:    "uaa-release",
 					Version: "uaa-version",
@@ -33,7 +33,7 @@ var _ = Describe("Printer", func() {
 			}
 
 			uaaReleaseLineItem2 = printer.LineItem{
-				PcfVersion: pcfnotes.Version(2.3),
+				PcfVersion: pcfnotes.Version{2, 3},
 				BoshRelease: printer.BoshRelease{
 					Name:    "uaa-release",
 					Version: "uaa-version2",
@@ -47,7 +47,7 @@ var _ = Describe("Printer", func() {
 			}
 
 			bitbarPrinter = printer.BitBarPrinter{
-				Writer: writer,
+				Writer:           writer,
 				StatusIconBase64: "image_base64",
 			}
 		})
