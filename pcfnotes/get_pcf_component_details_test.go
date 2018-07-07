@@ -33,7 +33,7 @@ var _ = Describe("GetPcfComponentDetails", func() {
 	})
 
 	It("should get uaa release by pcf version", func() {
-		found, uaaPcfComponent := getComponentDetails.ByName("uaa", pcfnotes.Version(2.1))
+		found, uaaPcfComponent := getComponentDetails.ByName("uaa", pcfnotes.Version{2, 1})
 
 		Expect(found).To(Equal(true))
 		Expect(uaaPcfComponent.Name).To(Equal("uaa"))

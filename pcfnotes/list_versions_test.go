@@ -45,14 +45,32 @@ var _ = Describe("ListVersions", func() {
 	It("should return the latest pcf version from the pcfnotes repo", func() {
 		latestPcfVersion := pcfVersion.Latest()
 		Expect(githubServer.ReceivedRequests(), HaveLen(1))
-		Expect(latestPcfVersion).To(Equal(pcfnotes.Version(3.0)))
+		Expect(latestPcfVersion).To(Equal(pcfnotes.Version{3, 0}))
 	})
 
 	It("should return the latest 2 pcf version from the pcfnotes repo", func() {
 		latestPcfVersion, err := pcfVersion.LatestN(2)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(githubServer.ReceivedRequests(), HaveLen(1))
-		Expect(latestPcfVersion).To(ConsistOf(pcfnotes.Version(2.0), pcfnotes.Version(3.0)))
+		Expect(latestPcfVersion).To(ConsistOf(pcfnotes.Version{2, 0}, pcfnotes.Version{3, 0}))
+	})
+
+	Context("when version has more than a single decimal floating point", func() {
+		BeforeEach(func() {
+			githubServer.SetHandler(0, ghttp.CombineHandlers(
+				ghttp.VerifyRequest("GET", branchesUrl),
+				ghttp.RespondWithJSONEncoded(200, []GithubBranch{
+					{"2.2"}, {"2.12"}, {"3.0"},
+				}),
+			))
+		})
+
+		It("should return the latest 2 pcf version from the pcfnotes repo", func() {
+			latestPcfVersion, err := pcfVersion.LatestN(2)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(githubServer.ReceivedRequests(), HaveLen(1))
+			Expect(latestPcfVersion).To(ConsistOf(pcfnotes.Version{2, 12}, pcfnotes.Version{3, 0}))
+		})
 	})
 
 	Context("github api returns an error", func() {
