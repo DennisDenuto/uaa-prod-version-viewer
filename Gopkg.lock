@@ -12,6 +12,12 @@
   version = "v1.1.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/cznic/fileutil"
+  packages = ["."]
+  revision = "6a051e75936f623600b67c2b1116b6b6c0ffb936"
+
+[[projects]]
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
@@ -185,6 +191,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a4f6f8f1260ed017a1909f5ad02f5f3c8d02c7d1e80897b71583e343840a6c15"
+  inputs-digest = "6113c8456ab384f0860bae88b646855d9a5a4ecc00c0c73ce222dbbc873a58be"
   solver-name = "gps-cdcl"
   solver-version = 1

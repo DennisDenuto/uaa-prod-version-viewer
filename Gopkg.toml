@@ -29,6 +29,10 @@
   name = "github.com/google/go-github"
   version = "15.0.0"
 
+[[constraint]]
+  name = "github.com/cznic/fileutil"
+  branch = "master"
+
 [prune]
   go-tests = true
   unused-packages = true
