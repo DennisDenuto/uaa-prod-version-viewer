@@ -37,11 +37,11 @@ func (p PcfNotesComponentDetails) ByName(releaseName string, version Version) (b
 	pcfPipelineURI := fmt.Sprintf("/api/v1/teams/main/pipelines/build::%s/resources", version.String())
 	pcfPipelineURL, err := p.BaseURL.Parse(pcfPipelineURI)
 	if err != nil {
-		panic(err)
+		return false, ComponentDetails{}
 	}
 	resp, err := http.Get(pcfPipelineURL.String())
 	if err != nil {
-		panic(err)
+		return false, ComponentDetails{}
 	}
 
 	pcfPipelineDecoder := json.NewDecoder(resp.Body)
@@ -49,7 +49,7 @@ func (p PcfNotesComponentDetails) ByName(releaseName string, version Version) (b
 
 	err = pcfPipelineDecoder.Decode(details)
 	if err != nil {
-		panic(err)
+		return false, ComponentDetails{}
 	}
 
 	for _, detail := range *details {
