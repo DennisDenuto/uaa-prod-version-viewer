@@ -19,6 +19,8 @@ import (
 var githubPAT string
 var colorText string
 var numPCFVersions int
+var stdOut bool
+var cached bool
 var LineItemsLocalCacheLocation = "/tmp/local-bitbar-lineitems.json"
 
 // bitbarCmd represents the bitbar command

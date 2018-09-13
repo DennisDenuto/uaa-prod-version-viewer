@@ -1,14 +1,14 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"code.cloudfoundry.org/lager"
-	"github.com/DennisDenuto/uaa-prod-version-viewer/printer"
-	"os"
-	"github.com/skratchdot/open-golang/open"
-	"github.com/cznic/fileutil"
 	"encoding/json"
+	"github.com/DennisDenuto/uaa-prod-version-viewer/printer"
+	"github.com/cznic/fileutil"
+	"github.com/skratchdot/open-golang/open"
+	"github.com/spf13/cobra"
 	"io/ioutil"
+	"os"
 )
 
 var csvCmd = &cobra.Command{
@@ -23,7 +23,12 @@ var csvCmd = &cobra.Command{
 		logger := lager.NewLogger("pcf-version-viewer")
 		logger.RegisterSink(lager.NewPrettySink(logFile, lager.DEBUG))
 
-		csvFile, err := fileutil.TempFile(os.TempDir(), "pcf_notes", ".csv")
+		var csvFile *os.File
+		if stdOut {
+			csvFile = os.Stdout
+		} else {
+			csvFile, err = fileutil.TempFile(os.TempDir(), "pcf_notes", ".csv")
+		}
 		if err != nil {
 			logger.Fatal("Unable to create a temp file to write csv info into", err)
 		}
@@ -32,20 +37,28 @@ var csvCmd = &cobra.Command{
 			Writer: csvFile,
 		}
 
-		err = csvPrinter.Print(getLineItemsFromFile(logger))
+		var lineItems []printer.LineItem
+		if cached {
+			lineItems = getCachedLineItemsFromFile(logger)
+		} else {
+			lineItems = getLineItems(logger, githubPAT, numPCFVersions)
+		}
+		err = csvPrinter.Print(lineItems)
 		if err != nil {
 			logger.Fatal("Unable to print line items to csv file", err)
 		}
 
-		err = open.Run(csvFile.Name())
-		if err != nil {
-			logger.Fatal("Unable to open csv file", err)
+		if !stdOut {
+			err = open.Run(csvFile.Name())
+			if err != nil {
+				logger.Fatal("Unable to open csv file", err)
+			}
 		}
 
 	},
 }
 
-func getLineItemsFromFile(logger lager.Logger) []printer.LineItem {
+func getCachedLineItemsFromFile(logger lager.Logger) []printer.LineItem {
 	lineItemsJson, err := ioutil.ReadFile(LineItemsLocalCacheLocation)
 	if err != nil {
 		logger.Fatal("Unable to unmarshal line items from json file", err)
@@ -63,6 +76,8 @@ func getLineItemsFromFile(logger lager.Logger) []printer.LineItem {
 func init() {
 	csvCmd.Flags().StringVarP(&githubPAT, "token", "t", "", "Github PAT")
 	csvCmd.Flags().IntVarP(&numPCFVersions, "num", "n", 3, "number of pcf versions to fetch")
+	csvCmd.Flags().BoolVarP(&cached, "cached", "c", true, "should pcf info be read from file")
+	csvCmd.Flags().BoolVarP(&stdOut, "stdout", "o", false, "file to write csv to")
 
 	rootCmd.AddCommand(csvCmd)
 }
